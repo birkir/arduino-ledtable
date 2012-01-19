@@ -63,6 +63,17 @@ var matrix = {
 	 * Initializing function
 	**/
 	init: function(){
+		var rgb = document.getElementById('rgb');
+		for (r = 0; r < matrix.rows; r++) {
+			for (c = 0; c < matrix.cols; c++) {
+				var li = document.createElement('li');
+				if (r % 2 == 1) {
+					li.className = 'righty';
+				}
+				rgb.appendChild(li);
+			}
+		}
+
 		for (var effect in matrix.effects)
 		{
 			var option = document.createElement('option');
