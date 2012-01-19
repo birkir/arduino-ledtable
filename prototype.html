@@ -1,0 +1,73 @@
+<html>
+	<head>
+		<title>led-table :: prototype</title>
+		<style type="text/css">
+		.padding { padding: 10px; }
+		#rgb { list-style: none; margin: 0 0 1px 0; padding: 0 0 1px 0; background: #000; width: 245px; }
+		#rgb li { width: 60px; height: 60px; margin: 1px 0 0 1px; background: #fff; float: left; }
+		#rgb li.righty { float: right; margin: 1px 1px 0 0; }
+		</style>
+	</head>
+	<body>
+		<div class="padding">
+			<ul id="rgb">
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<li class="righty"></li>
+				<div style="clear: both;"></div>
+			</ul>
+		</div>
+		<div class="padding" id="control-panel">
+			<dl>
+				<dt><label for="matrix-effect">Effect</label></dt>
+					<dd><select id="matrix-effect"></select></dd>
+				<dt><label for="matrix-color-mode">Color mode</label></dt>
+					<dd>
+						<select id="matrix-color-mode">
+							<option value="2">Blend forward (slow)</option>
+							<option value="0">Blend forward (medium)</option>
+							<!--<option value="1">Blend backward (medium)</option>-->
+							<option value="4">Blend forward (fast)</option>
+							<option value="3">Randomize</option>
+							<option value="5">Fixed</option>
+						</select>
+					</dd>
+				<dt><label for="matrix-speed">Color</label></dt>
+					<dd><input type="number" value="0" min="0" max="1000" id="matrix-color" step="1" /></dd>
+				<dt><label for="matrix-color-saturation">Color saturation</label></dt>
+					<dd><input type="number" id="matrix-color-saturation" value="80" min="0" max="100" step="5" /></dd>
+				<dt><label for="matrix-speed">Speed</label></dt>
+					<dd><input type="number" value="50" min="25" max="1000" id="matrix-speed" step="25" /></dd>
+		</div>
+		<script type="text/javascript" src="prototype.js"></script>
+	</body>
+</html>
