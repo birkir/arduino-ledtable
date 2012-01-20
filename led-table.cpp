@@ -51,10 +51,9 @@ void setup()
 	digitalWrite(latchpin, LOW);
 	digitalWrite(enablepin, LOW);
 	Serial.println("[ ] successfully initialized!");
-	Serial.print("[ ] set effect speed to ");
-	Serial.print(effect_speed);
-	Serial.println(" ms.");
-	effect_change(1);
+	color_change(0);
+	effect_change(0);
+	speed_change(100);
 }
 
 /**
@@ -136,7 +135,7 @@ float color_value()
 **/
 void effect_change(int name)
 {
-	Serial.print("[ ] switch to effect '");
+	Serial.print("[ ] set effect to '");
 	Serial.print(name);
 	Serial.println("'.");
 
@@ -162,6 +161,22 @@ void effect_change(int name)
 		default:
 			Serial.print("[ ] could not find effect '"); Serial.print(effect_name); Serial.println("'.");
 	}
+}
+
+void speed_change(int speed)
+{
+	Serial.print("[ ] set speed to '");
+	Serial.print(speed);
+	Serial.println("'.");
+	effect_speed = speed;
+}
+
+void color_change(int mode)
+{
+	Serial.print("[ ] set color mode to '");
+	Serial.print(mode);
+	Serial.println("'.");
+	color_mode = mode;
 }
 
 /**
