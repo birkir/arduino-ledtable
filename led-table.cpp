@@ -183,6 +183,7 @@ void effect_loop()
 		case 10: effect_loop_spectrum(); break;  // spectrum
 		case 11: effect_loop_basspulse(); break; // basspulse
 	}
+	writeleds();
 	delay(effect_speed);
 }
 
@@ -243,7 +244,7 @@ void effect_loop_strobe()
 {
 	for (int i = 0; i < numleds; i++)
 	{
-		led(i, color_value(), color_sat, effect_pos % random(2, 4) == 1 ? 0 : 0.5);
+		led(i, color_value(), color_sat, effect_pos % 2 == 1 ? 0 : 0.5);
 	}
 	effect_pos++;
 }
@@ -255,18 +256,18 @@ void effect_loop_test()
 {
 	for (int i = 0; i < numleds; i++)
 	{
-		int trail = 10;
+		int trail = 3;
 		if (i == effect_pos)
 		{
 			led(i, color_value(), color_sat, 0.5);
 		}
 		else if (effect_dir == 0 && (i >= (effect_pos - trail) && i < effect_pos))
 		{
-			led(i, color_value(), color_sat, ((100 / (effect_pos - i)) / 100 / 2));
+			led(i, color_value(), color_sat, ((100 / (float) (effect_pos - i)) / 100 / 2));
 		}
 		else if (effect_dir == 1 && (i <= (effect_pos + trail) && i > effect_pos))
 		{
-			led(i, color_value(), color_sat, ((100 / (i - effect_pos)) / 100 / 2));
+			led(i, color_value(), color_sat, ((100 / (float) (i - effect_pos)) / 100 / 2));
 		}
 		else
 		{
@@ -354,7 +355,7 @@ void effect_loop_plasma()
 **/
 void effect_loop_police()
 {
-	int p = effect_pos;
+	float p = (float) effect_pos;
 	for (int i = 0; i < numleds; i++)
 	{
 		if (i < numleds / 2)
@@ -366,7 +367,7 @@ void effect_loop_police()
 			led(i, 0.65, color_sat, (p < 10 ? 0.5 - (p / 10) * 0.5 : (p >= 10 ? ((p - 10) / 10) * 0.5 : 0.5)));
 		}
 	}
-	effect_pos++;
+	effect_pos;
 	if (effect_pos > 20){ effect_pos = 0; }
 }
 
@@ -438,7 +439,7 @@ void effect_loop_basspulse()
 	equalizer_process();
 	for (int i = 0; i < numleds; i++)
 	{
-		led(i, color_value(), color_sat, ((equalizer[0] * 0.5) + (equalizer[1] * 1.5) + (equalizer[2] * 0.5)) / 1023 / 3);
+		led(i, color_value(), color_sat, (float) ((equalizer[0] * 0.5) + (equalizer[1] * 1.5) + (equalizer[2] * 0.5)) / 1023 / 3);
 	}
 }
 
