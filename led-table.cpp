@@ -367,7 +367,7 @@ void effect_loop_police()
 			led(i, 0.65, color_sat, (p < 10 ? 0.5 - (p / 10) * 0.5 : (p >= 10 ? ((p - 10) / 10) * 0.5 : 0.5)));
 		}
 	}
-	effect_pos;
+	effect_pos++;
 	if (effect_pos > 20){ effect_pos = 0; }
 }
 
