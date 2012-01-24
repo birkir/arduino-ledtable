@@ -1,0 +1,26 @@
+#######################################
+# AnalogButtons
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+AnalogButtons	KEYWORD1
+callbackFunction	KEYWORD1
+Buttons	KEYWORD1
+softwareDeBounce	KEYWORD1
+voltagedivider	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+
