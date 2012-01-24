@@ -24,6 +24,8 @@
  * LED: 13
 **/
 
+#include <LiquidCrystal.h>
+
 // Buttons
 #define b0_pin 1  // analog
 #define b1_pin 2  // analog
@@ -511,7 +513,7 @@ void equalizer_process()
 	{
 		digitalWrite(eq1_pin, LOW);
 		delayMicroseconds(30);
-		equalizer[i] = analogRead(eq_0);
+		equalizer[i] = analogRead(eq0_pin);
 		digitalWrite(eq1_pin, HIGH);
 	}
 }
