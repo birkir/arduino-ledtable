@@ -25,23 +25,30 @@
 **/
 
 // Buttons
-#define b00_ANL_pin 1
-#define b01_ANL_pin 2
+#define b0_pin 1  // analog
+#define b1_pin 2  // analog
 
-// Cyrstal LCD
-#define  rs_DIG_pin 22
-#define db7_DIG_pin 23
-#define db5_DIG_pin 24
-#define db6_PWM_pin 2
-#define db4_PWM_pin 3
-#define   e_PWM_pin 4
+// Crystal LCD
+#define rs_pin 22 // digital - rs
+#define d7_pin 23 // digital
+#define d5_pin 24 // digital
+#define d6_pin 2  // pwm
+#define d4_pin 3  // pwm
+#define en_pin 4  // pwm - enable
 
 // ShiftBrite
-#define sbC_SPI_pin 52 // clock
-#define sbE_SPI_pin 53 // enable
-#define sbL_PWM_pin 5  // latch
-#define sbD_SPI_pin 51 // data
+#define sc_pin 52 // spi - clock
+#define se_pin 53 // spi - enable
+#define sl_pin 5  // pwm - latch
+#define sd_pin 51 // spi - data
 
+// Equalizer
+#define eq0_pin 3  // analog - dc output
+#define eq1_pin 25 // digital - strobe
+#define eq2_pin 26 // digital - reset
+
+// liquid crystal lcd module
+LiquidCrystal lcd(rs_pin, en_pin, d4_pin, d5_pin, d6_pin, d7_pin);
 
 // shiftbrite
 unsigned long SB_CommandPacket;
@@ -76,25 +83,34 @@ float effect_float = 0.0;
 // equalizer
 int equalizer[7];
 
+
 /**
  * initialize
 **/
 void setup()
 {
 	Serial.begin(9600);
-	Serial.println("project :: led-table");
-	Serial.println("[ ] initializing...");
-	pinMode(datapin, OUTPUT);
-	pinMode(latchpin, OUTPUT);
-	pinMode(enablepin, OUTPUT);
-	pinMode(clockpin, OUTPUT);
-	digitalWrite(latchpin, LOW);
-	digitalWrite(enablepin, LOW);
-	Serial.println("[ ] successfully initialized!");
+	lcd.begin(16, 2);
+	pinMode(sd_pin, OUTPUT);
+	pinMode(sl_pin, OUTPUT);
+	pinMode(se_pin, OUTPUT);
+	pinMode(sc_pin, OUTPUT);
+	digitalWrite(sl_pin, LOW);
+	digitalWrite(se_pin, LOW);
 	color_change(0);
 	effect_change(1);
 	speed_change(100);
 }
+
+/**
+ * main loop
+**/
+void loop()
+{
+	color_process();
+	effect_loop();
+}
+
 
 /**
  * write out led array
@@ -133,15 +149,6 @@ void led(int i, float h, float s, float l)
 }
 
 /**
- * main loop
-**/
-void loop()
-{
-	color_process();
-	effect_loop();
-}
-
-/**
  * color process
 **/
 void color_process()
@@ -175,10 +182,6 @@ float color_value()
 **/
 void effect_change(int name)
 {
-	Serial.print("[ ] set effect to '");
-	Serial.print(name);
-	Serial.println("'.");
-
 	effect_name = name;
 	effect_pos = 0;
 	effect_float = 0.0;
@@ -198,24 +201,22 @@ void effect_change(int name)
 		case 9:  rowfix = 1; break; // snake
 		case 10: rowfix = 1; break; // spectrum
 		case 11: rowfix = 0; break; // basspulse
-		default:
-			Serial.print("[ ] could not find effect '"); Serial.print(effect_name); Serial.println("'.");
 	}
 }
 
+/**
+ * Change speed
+**/
 void speed_change(int speed)
 {
-	Serial.print("[ ] set speed to '");
-	Serial.print(speed);
-	Serial.println("'.");
 	effect_speed = speed;
 }
 
+/**
+ * Change color mode
+**/
 void color_change(int mode)
 {
-	Serial.print("[ ] set color mode to '");
-	Serial.print(mode);
-	Serial.println("'.");
 	color_mode = mode;
 }
 
@@ -498,15 +499,20 @@ void effect_loop_basspulse()
 	}
 }
 
-
 /**
  * equalizer process
 **/
 void equalizer_process()
 {
+	digitalWrite(eq2_pin, HIGH);
+	digitalWrite(eq2_pin, LOW);
+
 	for (int i = 0; i < 7; i++)
 	{
-		equalizer[i] = random(0, 1024);
+		digitalWrite(eq1_pin, LOW);
+		delayMicroseconds(30);
+		equalizer[i] = analogRead(eq_0);
+		digitalWrite(eq1_pin, HIGH);
 	}
 }
 
@@ -520,15 +526,15 @@ void SB_SendPacket()
 	SB_CommandPacket = (SB_CommandPacket << 10)  | (SB_RedCommand & 1023);
 	SB_CommandPacket = (SB_CommandPacket << 10)  | (SB_GreenCommand & 1023);
 
-	shiftOut(datapin, clockpin, MSBFIRST, SB_CommandPacket >> 24);
-	shiftOut(datapin, clockpin, MSBFIRST, SB_CommandPacket >> 16);
-	shiftOut(datapin, clockpin, MSBFIRST, SB_CommandPacket >> 8);
-	shiftOut(datapin, clockpin, MSBFIRST, SB_CommandPacket);
+	shiftOut(sd_pin, sc_pin, MSBFIRST, SB_CommandPacket >> 24);
+	shiftOut(sd_pin, sc_pin, MSBFIRST, SB_CommandPacket >> 16);
+	shiftOut(sd_pin, sc_pin, MSBFIRST, SB_CommandPacket >> 8);
+	shiftOut(sd_pin, sc_pin, MSBFIRST, SB_CommandPacket);
 
 	delay(1);
-	digitalWrite(latchpin, HIGH);
+	digitalWrite(sl_pin, HIGH);
 	delay(1);
-	digitalWrite(latchpin, LOW);
+	digitalWrite(sl_pin, LOW);
 }
 
 /**
