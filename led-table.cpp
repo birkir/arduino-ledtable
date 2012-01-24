@@ -1,8 +1,47 @@
-#define clockpin 7
-#define enablepin 8
-#define latchpin 9
-#define datapin 10
-#define numleds 4
+/**
+ * Arduino Mega 1280
+ *
+ * Analog:  1 - 16
+ * Digital: 22 - 53
+ *
+ * Serial: 0 (RX) +  1 (TX)
+ *        19 (RX) + 18 (TX)
+ *        17 (RX) + 16 (TX)
+ *        15 (RX) + 14 (TX)
+ *
+ * Interrupts: 2, 3, 18, 19, 20, 21
+ *
+ * I2C: 20 (SDA)
+ *      21 (SCL)
+ *
+ * SPI: 50 (MISO)
+ *      51 (MOSI)
+ *      52 (SCK)
+ *      53 (SS)
+ * 
+ * PWM: 0 - 13
+ * 
+ * LED: 13
+**/
+
+// Buttons
+#define b00_ANL_pin 1
+#define b01_ANL_pin 2
+
+// Cyrstal LCD
+#define  rs_DIG_pin 22
+#define db7_DIG_pin 23
+#define db5_DIG_pin 24
+#define db6_PWM_pin 2
+#define db4_PWM_pin 3
+#define   e_PWM_pin 4
+
+// ShiftBrite
+#define sbC_SPI_pin 52 // clock
+#define sbE_SPI_pin 53 // enable
+#define sbL_PWM_pin 5  // latch
+#define sbD_SPI_pin 51 // data
+
 
 // shiftbrite
 unsigned long SB_CommandPacket;
@@ -12,6 +51,7 @@ int SB_RedCommand;
 int SB_GreenCommand;
 
 // led array
+#define numleds 4
 int LED[numleds][3] = {0};
 int rows = 8;
 int cols = 4;
@@ -52,7 +92,7 @@ void setup()
 	digitalWrite(enablepin, LOW);
 	Serial.println("[ ] successfully initialized!");
 	color_change(0);
-	effect_change(0);
+	effect_change(1);
 	speed_change(100);
 }
 
@@ -108,7 +148,7 @@ void color_process()
 {
 	switch (color_mode) {
 		case 0: color_pos++; if (color_pos >= 360) color_pos = 0; break;
-		case 1: color_pos--; if (color_pos == 0 || color_pos > 360) color_pos = 360; break;
+		case 1: color_pos--; if (color_pos <= 0 || color_pos > 360) color_pos = 360; break;
 		case 2: color_pos++; if (color_pos >= 3600) color_pos = 0; break;
 		case 3: color_pos = random(0, 360); break;
 		case 4: color_pos++; if (color_pos >= 36) color_pos = 0; break;
@@ -123,10 +163,10 @@ float color_value()
 	switch (color_mode) {
 		case 0:
 		case 1:
-		case 3: return color_pos / 360; break;
-		case 2: return color_pos / 3600; break;
-		case 4: return color_pos / 36; break;
-		case 5: return color_pos; break;
+		case 3: return (float) color_pos / 360; break;
+		case 2: return (float) color_pos / 3600; break;
+		case 4: return (float) color_pos / 36; break;
+		case 5: return (float) color_pos; break;
 	}
 }
 
@@ -218,11 +258,11 @@ void effect_loop_row()
 			}
 			else if (effect_dir == 1 && r < effect_pos)
 			{
-				led(i, color_value(), color_sat, (effect_pos - r <= 3 ? (50 / (effect_pos - r)) / 100 : 0));
+				led(i, color_value(), color_sat, (effect_pos - r <= 3 ? (50.0 / ((float) effect_pos - (float) r)) / 100.0 : 0));
 			}
 			else if (effect_dir == 0 && r > effect_pos)
 			{
-				led(i, color_value(), color_sat, (r - effect_pos <= 3 ? (50 / (r - effect_pos)) / 100 : 0));
+				led(i, color_value(), color_sat, (r - effect_pos <= 3 ? (50.0 / ((float) r - (float) effect_pos)) / 100.0 : 0));
 			}
 			else
 			{
@@ -278,11 +318,11 @@ void effect_loop_test()
 		}
 		else if (effect_dir == 0 && (i >= (effect_pos - trail) && i < effect_pos))
 		{
-			led(i, color_value(), color_sat, ((100 / (float) (effect_pos - i)) / 100 / 2));
+			led(i, color_value(), color_sat, ((100.0 / ((float) effect_pos - (float) i)) / 100.0 / 2.0));
 		}
 		else if (effect_dir == 1 && (i <= (effect_pos + trail) && i > effect_pos))
 		{
-			led(i, color_value(), color_sat, ((100 / (float) (i - effect_pos)) / 100 / 2));
+			led(i, color_value(), color_sat, ((100.0 / ((float) i - (float) effect_pos)) / 100.0 / 2.0));
 		}
 		else
 		{
@@ -342,23 +382,23 @@ void effect_loop_plasma()
 {
 	for (int c = 0; c < cols; c++)
 	{
-		float b = (1 + sin(3.14159 * c * 0.75 / (cols - 1.0) + effect_float)) * 0.3;
+		float b = (1 + sin(3.14159 * (float) c * 0.75 / ((float) cols - 1.0) + (float) effect_float)) * 0.3;
 		for (int r = 0; r < rows; r++)
 		{
-			float a = (1 + sin(3.14159 * r * 0.75 / (rows + 2 - 1.0) + effect_float)) * 0.3;
-			rgb2hsl(250.0 * ((a + b - 1.33) / 0.667), 0, 255 - (250.0 * ((a + b - 1.33) / 0.667)));
+			float a = (1 + sin(3.14159 * (float) r * 0.75 / ((float) rows + 2.0 - 1.0) + (float) effect_float)) * 0.3;
+			rgb2hsl(250.0 * (((float) a + (float) b - 1.33) / 0.667), 0, 255.0 - (250.0 * ((a + b - 1.33) / 0.667)));
 			if ((a + b) < 0.667)
 			{
-				rgb2hsl(255 - (250.0 * ((a + b) / 0.667)), 250.0 * ((a + b) / 0.667), 0);
+				rgb2hsl(255 - (250.0 * (((float) a + (float) b) / 0.667)), 250.0 * (((float) a + (float) b) / 0.667), 0);
 			}
 			else if((a + b) < 1.333)
 			{
-				rgb2hsl(0, 255 - (250.0 * ((a + b - 0.667) / 0.667)), 250.0 * ((a + b - 0.667) / 0.667));
+				rgb2hsl(0, 255 - (250.0 * (((float) a + (float) b - 0.667) / 0.667)), 250.0 * (((float) a + (float) b - 0.667) / 0.667));
 			}
 			led(r + (c * rows), hsl[0], color_sat, hsl[2]);
 		}
 	}
-	effect_float = effect_float + (3.14159 / 50) * 0.75;
+	effect_float = (float) effect_float + (3.14159 / 50.0) * 0.75;
 	if (effect_float > (3.14159 * 2))
 	{
 		effect_float = 0.0;
@@ -375,11 +415,11 @@ void effect_loop_police()
 	{
 		if (i < numleds / 2)
 		{
-			led(i, 0, color_sat, (p < 10 ? (p / 10) * 0.5 : (p >= 10 ? 0.5 - ((p - 10) / 10) * 0.5 : 0)));
+			led(i, 0, color_sat, (p < 10.0 ? ((float) p / 10.0) * 0.5 : (p >= 10 ? 0.5 - (((float) p - 10.0) / 10) * 0.5 : 0.0)));
 		}
 		else
 		{
-			led(i, 0.65, color_sat, (p < 10 ? 0.5 - (p / 10) * 0.5 : (p >= 10 ? ((p - 10) / 10) * 0.5 : 0.5)));
+			led(i, 0.65, color_sat, (p < 10.0 ? 0.5 - ((float) p / 10.0) * 0.5 : (p >= 10.0 ? (((float) p - 10) / 10.0) * 0.5 : 0.5)));
 		}
 	}
 	effect_pos++;
@@ -401,20 +441,20 @@ void effect_loop_snake()
 	{
 		if (effect_storage[i][0])
 		{
-			led(effect_storage[i][0], color_value(), color_sat, 0.5 - ((i / 5) * 0.5));
+			led(effect_storage[i][0], color_value(), color_sat, 0.5 - (((float) i / 5) * 0.5));
 			effect_storage[i + 1][0] = effect_storage[i][0];
 		}
 	}
 	int _c = effect_pos % cols;
-	int _r = floor(effect_pos / cols);
+	int _r = floor((float) effect_pos / (float) cols);
 	int _l = effect_pos - ((_r - 1) * cols);
 	if (effect_dir == 0)
 	{
-		effect_pos = ((_r >= (rows - 1) ? -1 : _r) * cols) + _l;
+		effect_pos = ((_r >= (rows - 1) ? -1 : _r) * (float) cols) + _l;
 	}
 	else if (effect_dir == 1)
 	{
-		effect_pos = ((_r <= 0 ? (rows - 2) : _r - 2) * cols) + _l;
+		effect_pos = ((_r <= 0 ? (rows - 2) : _r - 2) * (float) cols) + _l;
 	}
 	else if (effect_dir == 2)
 	{
@@ -439,8 +479,8 @@ void effect_loop_spectrum()
 	{
 		for (int c = 0; c < cols; c++)
 		{
-			int eqval = (r == 1 ? (equalizer[0] + equalizer[1]) / 2046 : (r > 1 ? equalizer[r - 1] / 1023 : equalizer[r] / 1023)) * cols;
-			led(i, color_value(), color_sat, (c < eqval) ? (0.5 - ((c+1) / cols) * 0.5) : 0.0);
+			int eqval = (r == 1 ? (float) (equalizer[0] + equalizer[1]) / 2046.0 : (r > 1 ? (float) equalizer[r - 1] / 1023 : (float) equalizer[r] / 1023)) * (float) cols;
+			led(i, color_value(), color_sat, (c < eqval) ? (0.5 - (((float) c + 1) / (float) cols) * 0.5) : 0.0);
 			i++;
 		}
 	}
@@ -454,7 +494,7 @@ void effect_loop_basspulse()
 	equalizer_process();
 	for (int i = 0; i < numleds; i++)
 	{
-		led(i, color_value(), color_sat, (float) ((equalizer[0] * 0.5) + (equalizer[1] * 1.5) + (equalizer[2] * 0.5)) / 1023 / 3);
+		led(i, color_value(), color_sat, (((float) equalizer[0] * 0.5) + ((float) equalizer[1] * 1.5) + ((float) equalizer[2] * 0.5)) / 1023.0 / 3.0);
 	}
 }
 
