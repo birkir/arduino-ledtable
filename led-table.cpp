@@ -40,10 +40,10 @@ int rgb[3];
 int effect = 5;
 int eposition = 0;
 int edirection = 0;
+int edelay = 25;
 float saturation = 1.00;
 float color = 0.00;
-int waitforzero = 0;
-int looper = 0;
+int buttonstate = 0;
 bool fixrow = false;
 
 
@@ -172,17 +172,17 @@ void loop()
   int button = digitalRead(50);
 
   // if button was pressed down
-  if (button == 1 && waitforzero == 0)
-    waitforzero = 1;
+  if (button == 1 && buttonstate == 0)
+    buttonstate = 1;
 
   // if button was released
-  if (button == 0 && waitforzero == 1)
+  if (button == 0 && buttonstate == 1)
   {
     // iterate effect
     effect++;
 
     // reset button state
-    waitforzero = 0;
+    buttonstate = 0;
 
     // set effect position to zero
     eposition = 0;
@@ -197,7 +197,7 @@ void loop()
     fixrow = false;
 
     // set effect to zero if greater than effect count
-    if (effect == 8)
+    if (effect == 11)
       effect = 0;
   }
 
@@ -205,14 +205,15 @@ void loop()
   switch (effect)
   {
     case 1: effect_crossfade(); break;
-    case 2: effect_strobe(); break;
-    case 3: effect_sparkle(); break;
-    case 4: effect_police(); break;
-    case 5: effect_spectrum(); break;
-    case 6: effect_basspulse(); break;
-    case 7: effect_gradient(); break;
-    case 8: effect_plasma(); break;
-    case 9: effect_marquee(); break;
+    case 2: effect_gradient(); break;
+    case 3: effect_strobe(); break;
+    case 4: effect_sparkle(); break;
+    case 5: effect_marquee(); break;
+    case 6: effect_police(); break;
+    case 7: effect_spectrum(); break;
+    case 8: effect_basspulse(); break;
+    case 9: effect_plasma(); break;
+    case 10: effect_sinwave(); break;
     default: effect_test();
   }
 
@@ -220,7 +221,7 @@ void loop()
   WriteLEDArray();
 
   // set effect speed
-  delay(25);
+  delay(edelay);
 
   // iterate through color
   color += 0.001;
