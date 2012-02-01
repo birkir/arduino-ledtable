@@ -72,6 +72,9 @@ void setup()
   // setup crystal lcd screen
   lcd.begin(16, 2);
   lcd.print("project::led-tbl");
+
+  // load equalizer characters
+  lcd_equalizer();
 }
 
 
@@ -481,6 +484,15 @@ void effect_spectrum()
     digitalWrite(msgeq7_strobe, HIGH);
   }
 
+  // set lcd cursor
+  lcd.setCursor(0, 1);
+
+  // write letters
+  for (int i = 0; i < 8; i++)
+  {
+    lcd.write(eq[i] / 1023 * 8);
+  }
+
   // led count iterator
   int i = 0;
 
@@ -670,6 +682,32 @@ void effect_pulse()
   // iterate through effect position based on direction
   edirection == 0 ? eposition++ : eposition--;
 }
+
+
+
+/**
+ * Create characters for equalizer
+**/
+void lcd_equalizer()
+{
+  byte e0[8] = {B00000, B00000, B00000, B00000, B00000, B00000, B00000, B11111};
+  byte e1[8] = {B00000, B00000, B00000, B00000, B00000, B00000, B11111, B11111};
+  byte e2[8] = {B00000, B00000, B00000, B00000, B00000, B11111, B11111, B11111};
+  byte e3[8] = {B00000, B00000, B00000, B00000, B11111, B11111, B11111, B11111};
+  byte e4[8] = {B00000, B00000, B00000, B11111, B11111, B11111, B11111, B11111};
+  byte e5[8] = {B00000, B00000, B11111, B11111, B11111, B11111, B11111, B11111};
+  byte e6[8] = {B00000, B11111, B11111, B11111, B11111, B11111, B11111, B11111};
+  byte e7[8] = {B11111, B11111, B11111, B11111, B11111, B11111, B11111, B11111};
+  lcd.createChar(0, e0);
+  lcd.createChar(1, e1);
+  lcd.createChar(2, e2);
+  lcd.createChar(3, e3);
+  lcd.createChar(4, e4);
+  lcd.createChar(5, e5);
+  lcd.createChar(6, e6);
+  lcd.createChar(7, e7);
+}
+
 
 
 /**
