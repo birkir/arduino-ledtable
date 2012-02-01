@@ -197,7 +197,7 @@ void loop()
     fixrow = false;
 
     // set effect to zero if greater than effect count
-    if (effect == 11)
+    if (effect == 12)
       effect = 0;
   }
 
@@ -214,6 +214,7 @@ void loop()
     case 8: effect_basspulse(); break;
     case 9: effect_plasma(); break;
     case 10: effect_sinwave(); break;
+    case 11: effect_pulse(); break;
     default: effect_test();
   }
 
@@ -640,6 +641,35 @@ void effect_sinwave()
   }
 }
 
+
+
+/**
+ * Pulse effect
+ * (pulses whole led array)
+ * @author Birkir R Gudjonsson
+**/
+void effect_pulse()
+{
+  for (int i = 0; i < NumLEDs; i++)
+  {
+    // calculate color values
+    hsl2rgb(color, saturation, eposition * 0.05);
+
+    // set led colors
+    LEDChannels[i][0] = rgb[0] * 4;
+    LEDChannels[i][1] = rgb[1] * 4;
+    LEDChannels[i][2] = rgb[2] * 4;
+  }
+
+  // reverse effect direction if at last led
+  if (edirection == 0 && eposition == 10) edirection = 1;
+
+  // reverse effect direction if at first led
+  if (edirection == 1 && eposition == 0) edirection = 0;
+
+  // iterate through effect position based on direction
+  edirection == 0 ? eposition++ : eposition--;
+}
 
 
 /**
