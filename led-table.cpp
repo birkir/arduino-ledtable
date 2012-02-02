@@ -37,7 +37,7 @@ int rows = 8;
 int cols = 4;
 
 int rgb[3];
-int effect = 5;
+int effect = 7;
 int eposition = 0;
 int edirection = 0;
 int edelay = 25;
@@ -488,16 +488,21 @@ void effect_spectrum()
   lcd.setCursor(0, 1);
 
   // write letters
-  for (int i = 0; i < 8; i++)
+  for (int i = 0; i < 7; i++)
   {
-    lcd.write(eq[i] / 1023 * 8);
+    if (i > 0)
+      lcd.write(((float) (eq[i] + eq[i-1]) / 2046) * 8);
+    lcd.write(((float) eq[i] / 1023) * 8);
   }
+  lcd.print(" ");
+  lcd.write(((float) (eq[0] + eq[1] + eq[2] + eq[3]) / (4 * 1023)) * 8);
+  lcd.write(((float) (eq[3] + eq[4] + eq[5] + eq[6]) / (4 * 1023)) * 8);
 
   // led count iterator
   int i = 0;
 
   // loop through rows
-  for (int r = 0; r < rows; r++)
+  for (int r = rows - 1; r >= 0; r--)
   {
     // calculate equalizer value
     int eqval = (r == 1 ? (float) (eq[0] + eq[1]) / 2046.0 : (r > 1 ? (float) eq[r - 1] / 1023 : (float) eq[r] / 1023)) * (cols + 1);
@@ -506,7 +511,7 @@ void effect_spectrum()
     for (int c = 0; c < cols; c++)
     {
       // calculate color value
-      hsl2rgb(c * 0.15, saturation, (c < eqval) ? (0.5 - (((float) c) / (float) cols) * 0.5) : 0.0);
+      hsl2rgb(0.06 - ((c+1) * 0.015), saturation, c < eqval ? 0.5 : 0.0);
 
       // set led colors
       LEDChannels[i][0] = rgb[0] * 4;
@@ -515,6 +520,7 @@ void effect_spectrum()
       i++;
     }
   }
+  color -= 0.001;
 }
 
 
